@@ -10,6 +10,36 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Example {
-    id String @id @default(cuid())
+// create prisma models based on the ./schema.sql file
+model pokemon {
+    id     Int             @id @unique
+    name   String
+    height Int
+    weight Int
+    image  String
+    types  pokemon_types[]
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+}
+
+model types {
+    id      Int             @id @unique
+    name    String
+    pokemon pokemon_types[]
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+}
+
+model pokemon_types {
+    pokemon_id Int
+    type_id    Int
+    pokemon    pokemon @relation(fields: [pokemon_id], references: [id], onDelete: Cascade)
+    types      types   @relation(fields: [type_id], references: [id], onDelete: Cascade)
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    @@id([pokemon_id, type_id])
 }

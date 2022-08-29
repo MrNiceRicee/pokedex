@@ -1,15 +1,45 @@
-import type { NextPage } from "next";
-import Head from "next/head";
-import { trpc } from "../utils/trpc";
+import type { NextPage } from 'next';
+import Head from 'next/head';
+import Image from 'next/image';
+import Link from 'next/link';
+import { trpc } from '../utils/trpc';
+import Layout from '../components/layout';
 
-type TechnologyCardProps = {
-  name: string;
-  description: string;
-  documentation: string;
+const PokemonLoaderComponent = () => {
+  return (
+    <div className="flex flex-col items-center justify-center p-4 bg-white rounded-lg shadow-lg">
+      <div className="h-24 w-24">
+        <Image
+          width={96}
+          height={96}
+          layout="responsive"
+          src="/swag-placement.png"
+          alt={'whos that pokemon'}
+          placeholder="blur"
+          blurDataURL="swag-placement.png"
+          className="h-24 w-24"
+        />
+      </div>
+      <h2 className="text-2xl font-bold text-gray-700">
+        {"who's that pokemon!"}
+      </h2>
+      <div className="flex flex-row items-center justify-center pt-3 space-x-3">
+        <button className="px-4 py-2 text-sm font-medium text-white bg-grey-500 rounded-md ">
+          Details
+        </button>
+      </div>
+    </div>
+  );
 };
 
 const Home: NextPage = () => {
-  const hello = trpc.useQuery(["example.hello", { text: "from tRPC" }]);
+  const allPokemon = trpc.useInfiniteQuery(['pokemonApi.getAllPokemon', {}], {
+    getNextPageParam: (lastPage) => lastPage.next,
+  });
+
+  const loadNext = () => {
+    allPokemon.fetchNextPage();
+  };
 
   return (
     <>
@@ -19,59 +49,65 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="container mx-auto flex flex-col items-center justify-center min-h-screen p-4">
-        <h1 className="text-5xl md:text-[5rem] leading-normal font-extrabold text-gray-700">
-          Create <span className="text-purple-300">T3</span> App
+      <Layout>
+        <h1 className="font-pokemon text-5xl md:text-[5rem] leading-normal font-extrabold text-gray-700">
+          Poke
+          <span className="text-yellow-300 text-stroke drop-shadow-text">
+            dex
+          </span>{' '}
+          App
         </h1>
-        <p className="text-2xl text-gray-700">This stack uses:</p>
-        <div className="grid gap-3 pt-3 mt-3 text-center md:grid-cols-2 lg:w-2/3">
-          <TechnologyCard
-            name="NextJS"
-            description="The React framework for production"
-            documentation="https://nextjs.org/"
-          />
-          <TechnologyCard
-            name="TypeScript"
-            description="Strongly typed programming language that builds on JavaScript, giving you better tooling at any scale"
-            documentation="https://www.typescriptlang.org/"
-          />
-          <TechnologyCard
-            name="TailwindCSS"
-            description="Rapidly build modern websites without ever leaving your HTML"
-            documentation="https://tailwindcss.com/"
-          />
-          <TechnologyCard
-            name="tRPC"
-            description="End-to-end typesafe APIs made easy"
-            documentation="https://trpc.io/"
-          />
+        <div className="grid gap-3 pt-3 mt-3 text-center grid-cols-1 w-full lg:grid-cols-4 md:grid-cols-2">
+          <>
+            {allPokemon.data?.pages.map((page) =>
+              page.results.map((pokemon) => {
+                {
+                  const initialNumber = pokemon.url.match(/\/(\d+)\//)?.[1];
+                  return (
+                    <div
+                      key={pokemon.name}
+                      className="flex flex-col items-center justify-center p-4 bg-white rounded-lg shadow-lg w-full"
+                    >
+                      <div className="w-24 h-24 relative">
+                        <Image
+                          layout="fill"
+                          src={`https://serebii.net/art/th/${initialNumber}.png`}
+                          alt={pokemon.name}
+                          placeholder="blur"
+                          blurDataURL="swag-placement.png"
+                          objectFit="contain"
+                        />
+                      </div>
+                      <h2 className="text-2xl font-bold text-gray-700">
+                        {pokemon.name}
+                      </h2>
+                      <div className="flex flex-row items-center justify-center pt-3 space-x-3">
+                        <Link href={`/pokemon/${initialNumber}`}>
+                          <a
+                            className="px-4 py-2 text-sm font-medium text-blue-500 outline-blue-500 outline outline-2 rounded-md
+                          hover:bg-yellow-500 hover:text-white duration-300 ease-in-out
+                          focus:bg-yellow-500 focus:text-white"
+                          >
+                            Details
+                          </a>
+                        </Link>
+                      </div>
+                    </div>
+                  );
+                }
+              })
+            )}
+            {allPokemon.isLoading ? <PokemonLoaderComponent /> : null}
+          </>
         </div>
-        <div className="pt-6 text-2xl text-blue-500 flex justify-center items-center w-full">
-          {hello.data ? <p>{hello.data.greeting}</p> : <p>Loading..</p>}
-        </div>
-      </main>
+        <button
+          className="my-5 px-4 py-2 w-full text-sm font-medium text-white bg-purple-500 rounded-md hover:bg-purple-600"
+          onClick={loadNext}
+        >
+          load more
+        </button>
+      </Layout>
     </>
-  );
-};
-
-const TechnologyCard = ({
-  name,
-  description,
-  documentation,
-}: TechnologyCardProps) => {
-  return (
-    <section className="flex flex-col justify-center p-6 duration-500 border-2 border-gray-500 rounded shadow-xl motion-safe:hover:scale-105">
-      <h2 className="text-lg text-gray-700">{name}</h2>
-      <p className="text-sm text-gray-600">{description}</p>
-      <a
-        className="mt-3 text-sm underline text-violet-500 decoration-dotted underline-offset-2"
-        href={documentation}
-        target="_blank"
-        rel="noreferrer"
-      >
-        Documentation
-      </a>
-    </section>
   );
 };
 

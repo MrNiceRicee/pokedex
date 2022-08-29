@@ -1,4 +1,4 @@
-import { env } from "./src/env/server.mjs";
+import { env } from './src/env/server.mjs';
 
 /**
  * Don't be scared of the generics here.
@@ -15,4 +15,20 @@ function defineNextConfig(config) {
 export default defineNextConfig({
   reactStrictMode: true,
   swcMinify: true,
+  experimental: {
+    images: {
+      remotePatterns: [
+        {
+          protocol: 'https',
+          hostname: 'serebii.net',
+          pathname: '/art/th/*',
+        },
+        {
+          protocol: 'https',
+          hostname: '**.githubusercontent.com',
+          // pathname: '/PokeApi/sprites/master/sprites/pokemon/other/official-artwork/*',
+        },
+      ],
+    },
+  },
 });
