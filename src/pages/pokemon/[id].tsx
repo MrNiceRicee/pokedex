@@ -10,11 +10,12 @@ import { trpc } from '../../utils/trpc';
 import Layout from '../../components/layout';
 import useEscapeBack from '../../hooks/EscapeBack';
 import { DefaultColors } from 'tailwindcss/types/generated/colors';
+import Head from 'next/head';
 
-const PokemonLoaderComponent = () => {
+const PokemonLoaderComponent = ({ message }: { message?: string }) => {
   return (
     <div className="flex flex-col items-center justify-center p-4 bg-white rounded-lg shadow-lg">
-      <figure className="flex flex-col items-center rounded-t-lg justify-center w-full h-full p-4 border-b-4 border-yellow-300">
+      <figure className="flex flex-col items-center rounded-t-lg justify-center w-full h-full p-4">
         <div className="relative w-48 h-48">
           <Image
             layout="fill"
@@ -27,8 +28,19 @@ const PokemonLoaderComponent = () => {
         </div>
       </figure>
       <h2 className="text-2xl font-bold text-gray-700">
-        Who&apos;s that pokemon!
+        {message ? message : "Who's that pokemon!"}
       </h2>
+      <div className="flex flex-row items-center justify-center pt-3 space-x-3">
+        <Link href="/">
+          <a
+            className="px-4 py-2 text-sm font-medium text-blue-500 outline-blue-500 outline outline-2 rounded-md
+          hover:bg-yellow-500 hover:text-white duration-300 ease-in-out
+          focus:bg-yellow-500 focus:text-white"
+          >
+            Back
+          </a>
+        </Link>
+      </div>
     </div>
   );
 };
@@ -59,13 +71,19 @@ const PokemonMoves = ({
   const ref = useRef<HTMLTableSectionElement>(null);
 
   useEffect(() => {
-    ref.current && autoAnimate(ref.current);
+    ref.current &&
+      autoAnimate(ref.current, {
+        easing: 'ease-in-out',
+      });
   }, [ref]);
 
   const viewMore = () => {
-    if (viewMoves.length === moves.length) {
+    if (viewMoves.length >= moves.length) {
       setAll(true);
+      setViewMoves(moves);
+      return;
     }
+    // add 15 more moves to the viewMoves array one by one
     setViewMoves((old) => [
       ...old,
       ...moves.slice(old.length, old.length + 15),
@@ -120,6 +138,7 @@ const PokemonFlavorText = ({
   }>;
 }) => {
   const [selected, setSelected] = useState(flavorText[0]);
+
   const handleUniqueRandomizedText = () => {
     const randomIndex = Math.floor(Math.random() * flavorText.length);
     if (
@@ -127,10 +146,10 @@ const PokemonFlavorText = ({
       flavorText.findIndex((t) => t.flavor_text === selected?.flavor_text)
     ) {
       return setSelected(flavorText[randomIndex]);
-    } else {
-      handleUniqueRandomizedText();
     }
+    handleUniqueRandomizedText();
   };
+
   return (
     <>
       <p className="text-gray-800">{selected?.flavor_text}</p>
@@ -148,10 +167,17 @@ const PokemonFlavorText = ({
 };
 
 const PokemonDetails = ({ id }: { id: string }) => {
-  const pokemon = trpc.useQuery(['pokemonApi.getPokemon', { name: id }]);
+  const pokemon = trpc.useQuery(['pokemonApi.getPokemon', { name: id }], {
+    retry: 0,
+    refetchOnWindowFocus: false,
+  });
 
-  if (!pokemon.data) {
-    return <PokemonLoaderComponent />;
+  if (!pokemon.data || pokemon.error) {
+    return (
+      <PokemonLoaderComponent
+        message={pokemon.error ? 'oops something bad happened' : undefined}
+      />
+    );
   }
 
   const backgroundColor =
@@ -267,9 +293,12 @@ const PokemonDetails = ({ id }: { id: string }) => {
       <div className="flex flex-row items-center justify-center pt-3 space-x-3">
         <Link href="/">
           <a
-            className="px-4 py-2 text-sm font-medium text-blue-500 outline-blue-500 outline outline-2 rounded-md
-          hover:bg-yellow-500 hover:text-white duration-300 ease-in-out
-          focus:bg-yellow-500 focus:text-white"
+            className={ctl(`px-4 py-2 text-sm font-medium text-blue-500 border-blue-500 border-2 
+              rounded-md
+            hover:bg-yellow-500 hover:text-white 
+            focus:bg-yellow-500 focus:text-white
+              duration-300 ease-in-out
+            `)}
           >
             Back
           </a>
@@ -293,6 +322,9 @@ export const Pokemon = () => {
 
   return (
     <Layout>
+      <Head>
+        <title>{id} | Pokémon</title>
+      </Head>
       <Suspense>
         <PokemonDetails id={id as string} />
       </Suspense>

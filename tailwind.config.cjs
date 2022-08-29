@@ -6,6 +6,12 @@ module.exports = {
       dropShadow: {
         text: '2px 2px 0px black',
       },
+      boxShadow: {
+        hard: `
+        2px 2px 0px black,
+        4px 4px 0px black
+        `,
+      },
       fontFamily: {
         pokemon: ['Pokemon'],
       },
@@ -25,5 +31,5 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [require('tailwindcss-safe-area')],
 };
