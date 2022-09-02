@@ -1,16 +1,21 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/router';
 import ctl from '@netlify/classnames-template-literals';
 import { z } from 'zod';
 import colors from 'tailwindcss/colors';
 import autoAnimate from '@formkit/auto-animate';
 import { trpc } from '../../utils/trpc';
 import Layout from '../../components/layout';
+// import Error from 'next/error';
+import Error from '../../components/Error';
 import useEscapeBack from '../../hooks/EscapeBack';
 import { DefaultColors } from 'tailwindcss/types/generated/colors';
 import Head from 'next/head';
+import {
+  GetServerSidePropsContext,
+  InferGetServerSidePropsType,
+} from 'next/types';
 
 const PokemonLoaderComponent = ({ message }: { message?: string }) => {
   return (
@@ -45,6 +50,52 @@ const PokemonLoaderComponent = ({ message }: { message?: string }) => {
   );
 };
 
+const PokemonTableBody = ({
+  moves,
+}: {
+  moves: Array<{
+    move: {
+      name: string;
+    };
+    version_group_details: Array<{
+      level_learned_at: number;
+      move_learn_method: {
+        name: string;
+        url: string;
+      };
+      version_group: {
+        name: string;
+        url: string;
+      };
+    }>;
+  }>;
+}) => {
+  const ref = useRef<HTMLTableSectionElement>(null);
+
+  useEffect(() => {
+    ref.current &&
+      autoAnimate(ref.current, {
+        easing: 'ease-in-out',
+      });
+  }, [ref]);
+
+  return (
+    <tbody ref={ref}>
+      {moves.map((move) => (
+        <tr key={move.move.name}>
+          <td className="text-gray-800">{move.move.name}</td>
+          <td className="text-gray-800">
+            {move.version_group_details[0]?.level_learned_at}
+          </td>
+          <td className="text-gray-800">
+            {move.version_group_details[0]?.move_learn_method.name}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  );
+};
+
 const PokemonMoves = ({
   moves,
 }: {
@@ -68,11 +119,12 @@ const PokemonMoves = ({
 }) => {
   const [all, setAll] = useState(false);
   const [viewMoves, setViewMoves] = useState(moves.slice(0, 5));
-  const ref = useRef<HTMLTableSectionElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     ref.current &&
       autoAnimate(ref.current, {
+        duration: 1000,
         easing: 'ease-in-out',
       });
   }, [ref]);
@@ -89,8 +141,9 @@ const PokemonMoves = ({
       ...moves.slice(old.length, old.length + 15),
     ]);
   };
+
   return (
-    <div>
+    <div ref={ref}>
       <h3 className="text-xl font-bold text-gray-800">Moves</h3>
       <table className="w-full table-auto">
         <thead>
@@ -100,19 +153,7 @@ const PokemonMoves = ({
             <th className="text-left text-gray-700">Method</th>
           </tr>
         </thead>
-        <tbody ref={ref}>
-          {viewMoves.map((move) => (
-            <tr key={move.move.name}>
-              <td className="text-gray-800">{move.move.name}</td>
-              <td className="text-gray-800">
-                {move.version_group_details[0]?.level_learned_at}
-              </td>
-              <td className="text-gray-800">
-                {move.version_group_details[0]?.move_learn_method.name}
-              </td>
-            </tr>
-          ))}
-        </tbody>
+        <PokemonTableBody moves={viewMoves} />
       </table>
       <button
         className={`my-5 px-4 py-2 w-full text-sm font-medium text-gray-700 rounded-md 
@@ -154,10 +195,21 @@ const PokemonFlavorText = ({
     <>
       <p className="text-gray-800">{selected?.flavor_text}</p>
       <button
-        className="my-5 px-4 py-2 text-sm font-medium text-gray-700 rounded-md
-        bg-yellow-300 hover:bg-yellow-400
+        className={ctl(`my-5 px-4 py-2 text-sm font-medium text-gray-700 rounded-md
+        bg-yellow-300
         focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-500 focus-visible:ring-opacity-75
-        transition-all duration-300"
+        transition-all duration-300
+        relative
+        overflow-hidden
+        before:inset-0 before:absolute
+        before:bg-yellow-400
+        before:translate-x-full
+        before:content-['Randomize']
+        before:flex before:items-center before:justify-center
+        before:w-full before:h-full
+        before:origin-bottom before:transition-transform before:duration-300 before:ease-out
+        hover:before:translate-x-0
+        `)}
         onClick={handleUniqueRandomizedText}
       >
         Randomize
@@ -308,16 +360,29 @@ const PokemonDetails = ({ id }: { id: string }) => {
   );
 };
 
-export const Pokemon = () => {
-  const id = useRouter().query.id;
-  const idString = z.string();
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  const id = context.params?.id;
 
+  return {
+    props: {
+      id,
+    },
+  };
+};
+
+const Pokemon = ({
+  id,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   useEscapeBack();
 
-  try {
-    idString.parse(id);
-  } catch (err) {
-    return <div>Invalid Pokemon Id or Name</div>;
+  // check if id is valid with zod
+  const idSchema = z.string().regex(/^[0-9]+$/);
+  const idResult = idSchema.safeParse(id);
+
+  if (!idResult.success) {
+    return <Error statusCode={404} />;
   }
 
   return (

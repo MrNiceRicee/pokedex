@@ -8,7 +8,7 @@ import ctl from '@netlify/classnames-template-literals';
 
 const PokemonLoaderComponent = () => {
   return (
-    <div className="flex flex-col items-center justify-center p-4 bg-white rounded-lg shadow-lg">
+    <div className="flex flex-col items-center justify-center p-4 bg-white rounded-lg shadow-lg dark:bg-gray-800">
       <div className="h-24 w-24">
         <Image
           width={96}
@@ -16,16 +16,16 @@ const PokemonLoaderComponent = () => {
           layout="responsive"
           src="/swag-placement.png"
           alt={'whos that pokemon'}
-          placeholder="blur"
+          // placeholder="blur"
           blurDataURL="swag-placement.png"
           className="h-24 w-24"
         />
       </div>
-      <h2 className="text-2xl font-bold text-gray-700">
+      <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-300">
         {"who's that pokemon!"}
       </h2>
       <div className="flex flex-row items-center justify-center pt-3 space-x-3">
-        <div className="px-4 py-2 text-sm font-medium text-white bg-grey-500 rounded-md ">
+        <div className="px-4 py-2 text-sm font-medium text-gray-600 bg-grey-500 rounded-md dark:text-gray-300 dark:bg-gray-700">
           loading
         </div>
       </div>
@@ -51,16 +51,27 @@ const Home: NextPage = () => {
       </Head>
 
       <Layout>
-        <h1 className="font-pokemon text-5xl md:text-[5rem] leading-normal font-extrabold text-gray-700">
+        <h1
+          className="font-pokemon text-5xl md:text-[5rem] leading-normal font-extrabold text-gray-700
+        dark:text-gray-50
+          transition-colors duration-300
+
+        "
+        >
           Poke
-          <span className="text-yellow-300 text-stroke drop-shadow-text">
+          <span
+            className="text-yellow-300 text-stroke drop-shadow-text
+          dark:text-yellow-400
+            transition-colors duration-300
+          "
+          >
             dex
           </span>{' '}
           App
         </h1>
         <div
           className={ctl(`
-          grid gap-3 pt-3 mt-3 text-center grid-cols-1 w-full
+          grid gap-3 pt-3 mt-3 text-center grid-cols-1 w-full lg:max-w-6xl
           lg:grid-cols-4 md:grid-cols-2
          `)}
         >
@@ -73,7 +84,9 @@ const Home: NextPage = () => {
                     <div
                       key={pokemon.name}
                       className={ctl(`flex flex-col items-center justify-center
-                        p-4 bg-white rounded-lg shadow-hard w-full
+                        p-4 rounded-lg shadow-hard w-full
+                        bg-white dark:bg-gray-800
+                        transition-colors duration-300
                         border-4 border-[#2563eb]
                         `)}
                     >
@@ -87,7 +100,7 @@ const Home: NextPage = () => {
                           objectFit="contain"
                         />
                       </div>
-                      <h2 className="text-2xl font-bold text-gray-700">
+                      <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-300">
                         {pokemon.name}
                       </h2>
                       <div className="flex flex-row items-center justify-center pt-3 space-x-3">
@@ -109,7 +122,7 @@ const Home: NextPage = () => {
                 }
               })
             )}
-            {allPokemon.isLoading ? <PokemonLoaderComponent /> : null}
+            {!allPokemon.isLoading ? <PokemonLoaderComponent /> : null}
           </>
         </div>
         <button
