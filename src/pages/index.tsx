@@ -33,6 +33,74 @@ const PokemonLoaderComponent = () => {
   );
 };
 
+const PokemonComponent = ({
+  pokemon,
+}: {
+  pokemon: { name: string; url: string };
+}) => {
+  const initialNumber = pokemon.url.match(/\/(\d+)\//)?.[1];
+  return (
+    <Link href={`/pokemon/${initialNumber}`}>
+      <a className={ctl(`group focus:outline-none`)}>
+        <div
+          key={pokemon.name}
+          className={ctl(`flex flex-col items-center justify-center
+              p-4 rounded-lg shadow-hard w-full
+              bg-white dark:bg-gray-800
+              transition-colors duration-300
+              border-4 border-[#2563eb]
+              group-focus:outline
+              relative
+              overflow-clip
+              before:inset-0
+              before:w-full
+              before:h-full
+              before:absolute
+              before:bg-gradient-to-t
+              before:from-transparent
+              before:via-transparent
+              before:to-yellow-400  
+              before:opacity-0
+              before:transition-opacity
+              before:duration-300
+              before:ease-in-out
+              before:group-hover:opacity-100
+              before:group-focus:opacity-100
+        `)}
+        >
+          <div className="w-24 h-24 relative">
+            <Image
+              layout="fill"
+              src={`https://serebii.net/art/th/${initialNumber}.png`}
+              alt={pokemon.name}
+              placeholder="blur"
+              blurDataURL="swag-placement.png"
+              objectFit="contain"
+            />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-300">
+            {pokemon.name}
+          </h2>
+          <div className="flex flex-row items-center justify-center pt-3 space-x-3"></div>
+        </div>
+      </a>
+    </Link>
+  );
+};
+
+{
+  /* <a
+className={ctl(`px-4 py-2 text-sm font-medium text-blue-500 border-blue-500 border-2 
+rounded-md
+hover:bg-yellow-500 hover:text-white 
+focus:bg-yellow-500 focus:text-white
+duration-300 ease-in-out
+`)}
+>
+Details
+</a> */
+}
+
 const Home: NextPage = () => {
   const allPokemon = trpc.useInfiniteQuery(['pokemonApi.getAllPokemon', {}], {
     getNextPageParam: (lastPage) => lastPage.next,
@@ -77,52 +145,14 @@ const Home: NextPage = () => {
         >
           <>
             {allPokemon.data?.pages.map((page) =>
-              page.results.map((pokemon) => {
-                {
-                  const initialNumber = pokemon.url.match(/\/(\d+)\//)?.[1];
-                  return (
-                    <div
-                      key={pokemon.name}
-                      className={ctl(`flex flex-col items-center justify-center
-                        p-4 rounded-lg shadow-hard w-full
-                        bg-white dark:bg-gray-800
-                        transition-colors duration-300
-                        border-4 border-[#2563eb]
-                        `)}
-                    >
-                      <div className="w-24 h-24 relative">
-                        <Image
-                          layout="fill"
-                          src={`https://serebii.net/art/th/${initialNumber}.png`}
-                          alt={pokemon.name}
-                          placeholder="blur"
-                          blurDataURL="swag-placement.png"
-                          objectFit="contain"
-                        />
-                      </div>
-                      <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-300">
-                        {pokemon.name}
-                      </h2>
-                      <div className="flex flex-row items-center justify-center pt-3 space-x-3">
-                        <Link href={`/pokemon/${initialNumber}`}>
-                          <a
-                            className={ctl(`px-4 py-2 text-sm font-medium text-blue-500 border-blue-500 border-2 
-                            rounded-md
-                          hover:bg-yellow-500 hover:text-white 
-                          focus:bg-yellow-500 focus:text-white
-                            duration-300 ease-in-out
-                          `)}
-                          >
-                            Details
-                          </a>
-                        </Link>
-                      </div>
-                    </div>
-                  );
-                }
-              })
+              page.results.map((pokemon, index) => (
+                <PokemonComponent
+                  key={`${pokemon.name}-${index}`}
+                  pokemon={pokemon}
+                />
+              ))
             )}
-            {!allPokemon.isLoading ? <PokemonLoaderComponent /> : null}
+            {allPokemon.isLoading ? <PokemonLoaderComponent /> : null}
           </>
         </div>
         <button

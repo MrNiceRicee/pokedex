@@ -82,14 +82,10 @@ const PokemonTableBody = ({
   return (
     <tbody ref={ref}>
       {moves.map((move) => (
-        <tr key={move.move.name}>
-          <td className="text-gray-800">{move.move.name}</td>
-          <td className="text-gray-800">
-            {move.version_group_details[0]?.level_learned_at}
-          </td>
-          <td className="text-gray-800">
-            {move.version_group_details[0]?.move_learn_method.name}
-          </td>
+        <tr key={move.move.name} className="text-gray-600 dark:text-gray-400">
+          <td>{move.move.name}</td>
+          <td>{move.version_group_details[0]?.level_learned_at}</td>
+          <td>{move.version_group_details[0]?.move_learn_method.name}</td>
         </tr>
       ))}
     </tbody>
@@ -144,19 +140,21 @@ const PokemonMoves = ({
 
   return (
     <div ref={ref}>
-      <h3 className="text-xl font-bold text-gray-800">Moves</h3>
+      <h3 className="text-xl font-bold">Moves</h3>
       <table className="w-full table-auto">
         <thead>
-          <tr>
-            <th className="text-left text-gray-700">Name</th>
-            <th className="text-left text-gray-700">Level learned</th>
-            <th className="text-left text-gray-700">Method</th>
+          <tr className="text-left text-gray-800 dark:text-gray-200">
+            <th>Name</th>
+            <th>Level learned</th>
+            <th>Method</th>
           </tr>
         </thead>
         <PokemonTableBody moves={viewMoves} />
       </table>
       <button
-        className={`my-5 px-4 py-2 w-full text-sm font-medium text-gray-700 rounded-md 
+        className={`my-5 px-4 py-2 w-full
+          text-sm font-medium text-gray-700
+          rounded-md 
           bg-yellow-300 hover:bg-yellow-400
           focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-500 focus-visible:ring-opacity-75 
           transition-all duration-300
@@ -193,24 +191,23 @@ const PokemonFlavorText = ({
 
   return (
     <>
-      <p className="text-gray-800">{selected?.flavor_text}</p>
+      <p className="text-gray-600 dark:text-gray-400">
+        {selected?.flavor_text}
+      </p>
       <button
-        className={ctl(`my-5 px-4 py-2 text-sm font-medium text-gray-700 rounded-md
-        bg-yellow-300
+        className={ctl(`my-5 px-4 py-2 rounded-md
+        text-sm font-medium text-gray-700 
+        bg-yellow-300 dark:bg-yellow-500
         focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-500 focus-visible:ring-opacity-75
         transition-all duration-300
         relative
         overflow-hidden
-        before:inset-0 before:absolute
-        before:bg-yellow-400
-        before:translate-x-full
-        before:content-['Randomize']
-        before:flex before:items-center before:justify-center
-        before:w-full before:h-full
-        before:origin-bottom before:transition-transform before:duration-300 before:ease-out
-        hover:before:translate-x-0
+        hover:bg-yellow-400 dark:hover:bg-yellow-600
         `)}
         onClick={handleUniqueRandomizedText}
+        ref={(el) => {
+          el?.focus();
+        }}
       >
         Randomize
       </button>
@@ -285,8 +282,13 @@ const PokemonDetails = ({ id }: { id: string }) => {
             </div>
           </div>
         </figure>
-        <header className="w-full bg-gray-50 px-4 pt-4">
-          <h2 className="text-2xl font-bold text-gray-800">
+        <header
+          className={ctl(
+            `w-full bg-gray-50 px-4 pt-4 
+            dark:bg-gray-800 dark:text-gray-50 duration-300`
+          )}
+        >
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-50 ">
             {pokemon.data?.name}
             <span
               style={{
@@ -298,18 +300,28 @@ const PokemonDetails = ({ id }: { id: string }) => {
             </span>
           </h2>
           <PokemonFlavorText flavorText={pokemon.data.flavor_text_entries} />
-          {/* <p className="text-gray-700">
-            {randomFlavorText?.toLocaleLowerCase()}
-          </p> */}
         </header>
-        <section className="w-full flex flex-col p-4 gap-4 bg-gray-50 rounded-b-lg">
+        <section
+          className={ctl(
+            `w-full flex flex-col p-4 gap-4 
+            bg-gray-50 rounded-b-lg 
+            dark:bg-gray-800 dark:text-gray-50 
+            text-gray-800
+            duration-300`
+          )}
+        >
           <div>
-            <h3 className="text-xl font-bold text-gray-800">Types</h3>
+            <h3 className="text-xl font-bold">Types</h3>
             <ul className="flex flex-row flex-wrap">
               {pokemon.data.types.map((type) => (
                 <li
                   key={type.type.name}
-                  className="flex flex-row w-24 items-center justify-center px-2 py-1 m-1 text-sm font-bold text-white bg-gray-800 rounded-full"
+                  className={ctl(`
+                  flex flex-row w-24 items-center justify-center px-2 py-1 m-1
+                  text-sm font-bold text-white dark:text-gray-800
+                  bg-gray-800 dark:bg-gray-50 
+                  rounded-full
+                  `)}
                 >
                   {type.type.name}
                 </li>
@@ -317,17 +329,17 @@ const PokemonDetails = ({ id }: { id: string }) => {
             </ul>
           </div>
           <div>
-            <h3 className="text-xl font-bold text-gray-800">Stats</h3>
+            <h3 className="text-xl font-bold ">Stats</h3>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col">
-                <span className="text-gray-700">Height</span>
-                <span className="text-gray-800">
+                <span className="text-gray-700 dark:text-gray-200">Height</span>
+                <span className="text-gray-600 dark:text-gray-400">
                   {pokemon.data.height / 10}m
                 </span>
               </div>
               <div className="flex flex-col">
-                <span className="text-gray-700">Weight</span>
-                <span className="text-gray-800">
+                <span className="text-gray-700 dark:text-gray-200">Weight</span>
+                <span className="text-gray-600 dark:text-gray-400">
                   {pokemon.data.weight / 10}kg
                 </span>
               </div>
