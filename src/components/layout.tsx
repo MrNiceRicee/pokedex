@@ -1,7 +1,5 @@
-import { Provider } from 'jotai';
 import { ReactNode, Suspense, useEffect } from 'react';
-import darkMode from '../context/darkMode';
-import DarkModeButton from './DarkMode';
+import DarkModeButton from './ToggleDarkMode';
 
 const Layout = ({ children }: { children: ReactNode }) => {
   // add className to html body
@@ -18,16 +16,6 @@ const Layout = ({ children }: { children: ReactNode }) => {
     };
   }, []);
 
-  // <Provider
-  //   initialValues={[
-  //     [
-  //       darkMode,
-  //       {
-  //         isDarkMode: false,
-  //       },
-  //     ],
-  //   ]}
-  // >
   return (
     <main className="container mx-auto min-h-screen w-full">
       <nav className="flex flex-row items-center justify-between w-full h-20 px-4 py-2">
@@ -41,7 +29,6 @@ const Layout = ({ children }: { children: ReactNode }) => {
       </div>
     </main>
   );
-  // </Provider>
 };
 
 export default Layout;

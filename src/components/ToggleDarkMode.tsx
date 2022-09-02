@@ -1,6 +1,6 @@
 import ctl from '@netlify/classnames-template-literals';
 import * as Switch from '@radix-ui/react-switch';
-import useDarkMode from '../hooks/DarkMode';
+import useDarkMode from '../hooks/useDarkMode';
 
 const DarkModeButton = () => {
   const [mode, setMode] = useDarkMode();
