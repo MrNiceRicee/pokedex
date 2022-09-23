@@ -1,5 +1,6 @@
 import ctl from '@netlify/classnames-template-literals';
 import Link from 'next/link';
+import useEscapeBack from '../hooks/EscapeBack';
 
 const statusCodeHashMessages: {
   [key: number]: string;
@@ -15,6 +16,7 @@ const Error = ({
   error?: string;
   statusCode?: number;
 }) => {
+  useEscapeBack();
   const displayErrorOrStatusCodeError = () => {
     if (typeof error === 'string') {
       return error;
@@ -25,8 +27,18 @@ const Error = ({
     );
   };
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <div className="flex flex-col items-center justify-center relative w-1/2 h-20 overflow-hidden">
+    <div
+      className={ctl(`flex flex-col items-center justify-center 
+        min-h-screen min-w-[100vw]
+        transition-colors duration-500
+      bg-gray-100 dark:bg-zinc-900
+      `)}
+    >
+      <div
+        className={ctl(
+          `flex flex-col items-center justify-center relative w-1/2 h-20 overflow-hidden`
+        )}
+      >
         <div
           // animation with bounce effect and a 300ms delay
           className={ctl(`
@@ -35,16 +47,15 @@ const Error = ({
           w-full h-full
           flex items-center justify-center
           animate-slideInBottom delay-300
+          
           `)}
         >
-          <h1 className="text-6xl font-bold text-gray-700">{statusCode}</h1>
+          <h1 className="text-6xl font-bold text-gray-700 dark:text-gray-300 transition-colors duration-500">
+            {statusCode || 'Error'}
+          </h1>
         </div>
       </div>
-      <div
-        className="w-1/2 h-0.5 bg-gray-300 my-4
-      animate-growWidth
-      "
-      />
+      <div className="w-1/2 h-0.5 bg-gray-700 dark:bg-gray-300 my-4 animate-growWidth" />
       <div className="flex flex-col items-center justify-center relative w-1/2 h-14 overflow-hidden">
         <div
           className={ctl(`
@@ -56,7 +67,7 @@ const Error = ({
           animate-slideInTop
           `)}
         >
-          <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-300">
+          <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-300 transition-colors duration-500">
             {displayErrorOrStatusCodeError()}
           </h2>
         </div>
@@ -65,8 +76,11 @@ const Error = ({
         <a
           className={ctl(`
           px-4 py-2
-          text-sm font-medium text-gray-100
-          bg-gray-500 rounded-md
+          text-sm font-medium 
+          text-gray-100 dark:text-gray-900
+          bg-gray-500 dark:bg-gray-300
+          transition-colors duration-500
+          rounded-md
           `)}
         >
           Go back home

@@ -4,15 +4,15 @@ import DarkModeButton from './ToggleDarkMode';
 const Layout = ({ children }: { children: ReactNode }) => {
   // add className to html body
   useEffect(() => {
-    document.querySelector('body')?.classList.add('bg-gray-100');
+    document.querySelector('body')?.classList.add('bg-zinc-100');
     document.querySelector('body')?.classList.add('transition-all');
     document.querySelector('body')?.classList.add('duration-500');
-    document.querySelector('body')?.classList.add('dark:bg-gray-900');
+    document.querySelector('body')?.classList.add('dark:bg-zinc-900');
     return () => {
-      document.querySelector('body')?.classList.remove('bg-gray-100');
+      document.querySelector('body')?.classList.remove('bg-zinc-100');
       document.querySelector('body')?.classList.add('transition-all');
       document.querySelector('body')?.classList.add('duration-500');
-      document.querySelector('body')?.classList.remove('dark:bg-gray-900');
+      document.querySelector('body')?.classList.remove('dark:bg-zinc-900');
     };
   }, []);
 
